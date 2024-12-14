@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ThinkBoard - ToDo para Criativos</title>
+    <title>ThinkBoard</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -61,21 +61,39 @@
                     <!-- Categorias serão populadas aqui -->
                 </ul>
             </div>
+            <div class="sidebar-section">
+                <h3>Backup</h3>
+                <div class="backup-controls">
+                    <button onclick="exportTasksToJSON()" class="backup-btn">
+                        <i class="fas fa-download"></i> Backup Tasks
+                    </button>
+                    <label class="restore-btn">
+                        <i class="fas fa-upload"></i> Restore Backup
+                        <input type="file" accept=".json" onchange="importTasksFromJSON(event)" style="display: none;">
+                    </label>
+                </div>
+            </div>
         </aside>
 
         <main class="main-content">
-            <div class="kanban-board">
-                <div class="board-column">
+            <div class="kanban-board" id="kanbanBoard">
+                <div class="board-column" data-status="todo">
                     <h3>Por Fazer</h3>
-                    <div class="task-list" id="todoList"></div>
+                    <div class="task-list" id="todoList">
+                        <!-- Tasks will be added here -->
+                    </div>
                 </div>
-                <div class="board-column">
+                <div class="board-column" data-status="doing">
                     <h3>Em Progresso</h3>
-                    <div class="task-list" id="inProgressList"></div>
+                    <div class="task-list" id="inProgressList">
+                        <!-- Tasks will be added here -->
+                    </div>
                 </div>
-                <div class="board-column">
+                <div class="board-column" data-status="done">
                     <h3>Concluído</h3>
-                    <div class="task-list" id="doneList"></div>
+                    <div class="task-list" id="doneList">
+                        <!-- Tasks will be added here -->
+                    </div>
                 </div>
             </div>
         </main>
@@ -105,18 +123,15 @@
                 </div>
                 <div class="form-group">
                     <label for="taskDueDate">Data de Entrega</label>
-                    <input type="datetime-local" id="taskDueDate" name="taskDueDate">
+                    <input type="date" id="taskDueDate" name="taskDueDate" required>
                 </div>
                 <div class="form-group">
-                    <label>
-                        <input type="checkbox" id="taskPriority" name="taskPriority">
-                        Tarefa Prioritária
-                    </label>
-                </div>
-                <div class="form-group">
-                    <label for="taskImage">Upload de Imagem</label>
-                    <input type="file" id="taskImage" name="taskImage" accept="image/*">
-                    <div id="imagePreview" class="image-preview"></div>
+                    <label for="taskPriority">Prioridade</label>
+                    <select id="taskPriority" name="taskPriority" required>
+                        <option value="low">Baixa</option>
+                        <option value="medium">Média</option>
+                        <option value="high">Alta</option>
+                    </select>
                 </div>
                 <div class="form-actions">
                     <button type="submit" class="btn primary">Criar</button>
@@ -133,6 +148,7 @@
                 <button id="closeEditTaskModal" class="close-btn">&times;</button>
             </div>
             <form id="editTaskForm">
+                <input type="hidden" id="editTaskId">
                 <div class="form-group">
                     <label for="editTaskTitle">Título</label>
                     <input type="text" id="editTaskTitle" name="editTaskTitle" required>
@@ -149,18 +165,15 @@
                 </div>
                 <div class="form-group">
                     <label for="editTaskDueDate">Data de Entrega</label>
-                    <input type="datetime-local" id="editTaskDueDate" name="editTaskDueDate">
+                    <input type="date" id="editTaskDueDate" name="editTaskDueDate" required>
                 </div>
                 <div class="form-group">
-                    <label>
-                        <input type="checkbox" id="editTaskPriority" name="editTaskPriority">
-                        Tarefa Prioritária
-                    </label>
-                </div>
-                <div class="form-group">
-                    <label for="editTaskImage">Upload de Imagem</label>
-                    <input type="file" id="editTaskImage" name="editTaskImage" accept="image/*">
-                    <div id="editImagePreview" class="image-preview"></div>
+                    <label for="editTaskPriority">Prioridade</label>
+                    <select id="editTaskPriority" name="editTaskPriority" required>
+                        <option value="low">Baixa</option>
+                        <option value="medium">Média</option>
+                        <option value="high">Alta</option>
+                    </select>
                 </div>
                 <div class="form-actions">
                     <button type="submit" class="btn primary">Atualizar</button>
