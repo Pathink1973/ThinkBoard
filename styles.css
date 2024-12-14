@@ -136,7 +136,7 @@ body {
 
 .stat-item[data-status="done"] {
     border-left: 4px solid #86C7A3;
-    background: linear-gradient(to right, #D4EDDA 0%, #ffffff 100%);
+    background: linear-gradient(to right, #D6F5D6 0%, #ffffff 100%);
 }
 
 .stat-item[data-status="total"] {
@@ -261,29 +261,44 @@ body {
 .progress-bar-container {
     width: 100%;
     height: 6px;
-    background: #f1f3f5;
+    background: rgba(0, 0, 0, 0.05);
     border-radius: 3px;
     overflow: hidden;
+    margin: 8px 0;
+    cursor: pointer;
+    position: relative;
+}
+
+.progress-bar-container:hover::after {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: 0;
+    right: 0;
+    bottom: -4px;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 5px;
 }
 
 .progress-bar {
     height: 100%;
     border-radius: 3px;
-    transition: width 0.3s ease;
+    transition: all 0.3s ease;
+    pointer-events: none;
 }
 
 /* Status-based progress bar colors */
 .task-card[data-status="todo"] .progress-bar {
-    background: #ff6b6b;
+    background: #FFB366;
     width: 5% !important; /* Minimum visible width */
 }
 
 .task-card[data-status="inProgress"] .progress-bar {
-    background: #ffd43b;
+    background: #66B2FF;
 }
 
 .task-card[data-status="done"] .progress-bar {
-    background: #51cf66;
+    background: #86C7A3;
 }
 
 .task-footer {
@@ -634,30 +649,30 @@ body {
 }
 
 .column[data-state="todo"] {
-    background: var(--todo-gradient);
-    border-color: var(--todo-border);
+    background: #FFE5CC;
+    border-color: #FFB366;
 }
 
 .column[data-state="todo"]::before {
-    background: var(--todo-header);
+    background: #FFB366;
 }
 
 .column[data-state="inProgress"] {
-    background: var(--progress-gradient);
-    border-color: var(--progress-border);
+    background: #CCE5FF;
+    border-color: #66B2FF;
 }
 
 .column[data-state="inProgress"]::before {
-    background: var(--progress-header);
+    background: #66B2FF;
 }
 
 .column[data-state="done"] {
-    background: var(--done-gradient);
-    border-color: var(--done-border);
+    background: #D6F5D6;
+    border-color: #86C7A3;
 }
 
 .column[data-state="done"]::before {
-    background: var(--done-header);
+    background: #86C7A3;
 }
 
 .column h3 {
@@ -774,15 +789,15 @@ body {
 
 /* Status colors */
 .task-card[data-status="todo"] {
-    border-top: 3px solid #e53e3e;
+    border-top: 3px solid #FFB366;
 }
 
 .task-card[data-status="inProgress"] {
-    border-top: 3px solid #ecc94b;
+    border-top: 3px solid #66B2FF;
 }
 
 .task-card[data-status="done"] {
-    border-top: 3px solid #48bb78;
+    border-top: 3px solid #86C7A3;
 }
 
 /* Task metadata */
@@ -832,15 +847,15 @@ body {
 
 /* Task status-specific progress colors */
 .task-card[data-status="todo"] .progress-fill {
-    background-color: #dc3545;
+    background-color: #FFB366;
 }
 
 .task-card[data-status="inProgress"] .progress-fill {
-    background-color: #ecc94b;
+    background-color: #66B2FF;
 }
 
 .task-card[data-status="done"] .progress-fill {
-    background-color: #48bb78;
+    background-color: #86C7A3;
 }
 
 /* Status Select */
@@ -877,15 +892,15 @@ body {
 
 /* Task Status Colors */
 .status-select option[value="todo"] {
-    color: #e53e3e;
+    color: #FFB366;
 }
 
 .status-select option[value="inProgress"] {
-    color: #ecc94b;
+    color: #66B2FF;
 }
 
 .status-select option[value="done"] {
-    color: #48bb78;
+    color: #86C7A3;
 }
 
 /* Task Card Button Styles */
@@ -1315,7 +1330,7 @@ body {
 }
 
 .board-column:nth-child(3) {
-    background: #D4EDDA; /* Pastel Green */
+    background: #D6F5D6; /* Pastel Green */
     border-top: 3px solid #86C7A3;
 }
 

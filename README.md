@@ -40,25 +40,18 @@ Um quadro Kanban moderno e elegante, projetado especificamente para profissionai
    - Atribua um nome e cor à categoria
    - As categorias aparecem no menu lateral
 
-3. **Mover Tarefas**
-   - Arraste e solte as tarefas entre colunas
-   - Ou use o menu dropdown em cada tarefa
-   - O progresso é atualizado automaticamente
-
 ## 💻 Tecnologias Utilizadas
 
 - HTML5
 - CSS3 (com variáveis CSS para temas)
 - JavaScript (Vanilla)
-- LocalStorage para persistência de dados
-- Drag & Drop API
+- Google Cloud Storage para persistência de dados
 - Font Awesome para ícones
 
 ## 🎯 Recursos Especiais
 
 - **Persistência de Dados**
-  - Todas as tarefas e categorias são salvas localmente
-  - Não requer backend ou banco de dados
+  - Todas as tarefas e categorias são salvas na Google Cloud Storage
 
 - **Acessibilidade**
   - Interface otimizada para leitores de tela

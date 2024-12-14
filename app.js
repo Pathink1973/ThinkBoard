@@ -352,33 +352,110 @@ function deleteTask(taskId) {
     }
 }
 
-function moveTask(taskId, newStatus) {
-    const taskIndex = tasks.findIndex(task => task.id === taskId);
-    if (taskIndex === -1) return;
+function updateTaskStatus(taskId, newStatus) {
+    const task = tasks.find(t => t.id === taskId);
+    if (task) {
+        const oldStatus = task.status;
+        task.status = newStatus;
 
-    tasks[taskIndex].status = newStatus;
-    saveTasks();
-    
-    const taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
-    if (taskElement) {
-        taskElement.dataset.status = newStatus; 
-        const progress = getProgressByStatus(newStatus);
-        const progressText = newStatus === 'inProgress' ? 'Em Progresso' : `${progress}% Concluído`;
-        
-        // Update progress bar
-        const progressFill = taskElement.querySelector('.progress-fill');
-        const progressTextElement = taskElement.querySelector('.progress-text');
-        if (progressFill && progressTextElement) {
-            progressFill.style.width = `${progress}%`;
-            progressTextElement.textContent = progressText;
+        // Remove from old column
+        const taskCard = document.querySelector(`.task-card[data-task-id="${taskId}"]`);
+        if (taskCard) {
+            taskCard.remove();
         }
+
+        // Add to new column
+        const targetColumn = document.getElementById(`${newStatus}List`);
+        if (targetColumn) {
+            const newCard = createTaskCard(task);
+            targetColumn.appendChild(newCard);
+            
+            // Update progress bar color based on new status
+            const progressBar = newCard.querySelector('.progress-bar');
+            if (progressBar) {
+                updateProgressBarColor(progressBar, newStatus);
+            }
+        }
+
+        saveTasks();
+        updateTaskCounts();
     }
-    
+}
+
+function moveTask(taskId, newStatus) {
+    updateTaskStatus(taskId, newStatus);
+    renderTasks(); // Re-render to ensure proper column placement
+}
+
+function handleDrop(e, status) {
+    e.preventDefault();
+    const taskId = e.dataTransfer.getData('text/plain');
+    updateTaskStatus(taskId, status);
     renderTasks();
-    updateTaskCounts();
-    if (calendar) {
-        calendar.removeAllEvents();
-        calendar.addEventSource(getCalendarEvents());
+}
+
+function getProgressByStatus(status) {
+    switch(status) {
+        case 'todo': return 0;
+        case 'inProgress': return 50;
+        case 'done': return 100;
+        default: return 0;
+    }
+}
+
+function updateTaskProgress(taskId, progress) {
+    const task = tasks.find(t => t.id === taskId);
+    if (task) {
+        task.progress = progress;
+        
+        // Determine new status based on progress
+        let newStatus;
+        if (progress === 0) {
+            newStatus = 'todo';
+        } else if (progress === 100) {
+            newStatus = 'done';
+        } else {
+            newStatus = 'inProgress';
+        }
+        
+        // Always update status to ensure column movement
+        if (task.status !== newStatus) {
+            task.status = newStatus;
+            updateTaskStatus(taskId, newStatus);
+        } else {
+            // Just update the progress bar if status hasn't changed
+            const taskCard = document.querySelector(`.task-card[data-task-id="${taskId}"]`);
+            if (taskCard) {
+                const progressBar = taskCard.querySelector('.progress-bar');
+                const progressPercentage = taskCard.querySelector('.progress-percentage');
+                if (progressBar && progressPercentage) {
+                    progressBar.style.width = `${progress}%`;
+                    progressPercentage.textContent = `${progress}%`;
+                    updateProgressBarColor(progressBar, newStatus);
+                }
+            }
+        }
+        
+        saveTasks();
+        updateTaskCounts();
+    }
+}
+
+function updateProgressBarColor(progressBar, status) {
+    // Remove all existing color classes
+    progressBar.classList.remove('todo-progress', 'inProgress-progress', 'done-progress');
+    
+    // Add the appropriate color class
+    switch (status) {
+        case 'todo':
+            progressBar.classList.add('todo-progress');
+            break;
+        case 'inProgress':
+            progressBar.classList.add('inProgress-progress');
+            break;
+        case 'done':
+            progressBar.classList.add('done-progress');
+            break;
     }
 }
 
@@ -414,15 +491,6 @@ function renderTasks() {
 
     updateTaskCounts();
     setupDragAndDrop();
-}
-
-function getProgressByStatus(status) {
-    switch(status) {
-        case 'todo': return 0;
-        case 'inProgress': return 50;
-        case 'done': return 100;
-        default: return 0;
-    }
 }
 
 function createTaskCard(task) {
@@ -477,7 +545,7 @@ function createTaskCard(task) {
         card.appendChild(description);
     }
 
-    // Progress section
+    // Progress section with click functionality
     const progressSection = document.createElement('div');
     progressSection.className = 'task-progress-section';
     
@@ -494,6 +562,15 @@ function createTaskCard(task) {
     
     const progressBarContainer = document.createElement('div');
     progressBarContainer.className = 'progress-bar-container';
+    
+    // Make progress bar clickable
+    progressBarContainer.addEventListener('click', (e) => {
+        const rect = progressBarContainer.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const percentage = Math.round((x / rect.width) * 100);
+        const clampedPercentage = Math.max(0, Math.min(100, percentage));
+        updateTaskProgress(task.id, clampedPercentage);
+    });
     
     const progressBar = document.createElement('div');
     progressBar.className = 'progress-bar';
@@ -532,7 +609,7 @@ function createTaskCard(task) {
     
     statusSelect.addEventListener('change', (e) => {
         const newStatus = e.target.value;
-        moveTask(task.id, newStatus);
+        updateTaskStatus(task.id, newStatus);
     });
     
     statusContainer.appendChild(statusSelect);
@@ -812,7 +889,7 @@ function setupDragAndDrop() {
             e.preventDefault();
             const taskId = parseInt(document.querySelector('.dragging').dataset.taskId);
             const newStatus = zone.parentElement.dataset.state;
-            moveTask(taskId, newStatus);
+            updateTaskStatus(taskId, newStatus);
         });
     });
 }
