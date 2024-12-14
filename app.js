@@ -12,6 +12,9 @@ const kanbanViewBtn = document.getElementById('kanbanViewBtn');
 const calendarViewBtn = document.getElementById('calendarViewBtn');
 const kanbanView = document.getElementById('kanbanView');
 const calendarView = document.getElementById('calendarView');
+const settingsModal = document.getElementById('settingsModal');
+const settingsBtn = document.getElementById('settingsBtn');
+const closeSettingsModal = document.getElementById('closeSettingsModal');
 
 // Buttons
 const addTaskBtn = document.getElementById('addTaskBtn');
@@ -113,25 +116,33 @@ function closeCategoryModal() {
     categoryForm.reset();
 }
 
+function openSettingsModal() {
+    settingsModal.style.display = 'block';
+}
+
+function closeSettingsModalFn() {
+    settingsModal.style.display = 'none';
+}
+
 // Task Functions
 function handleTaskSubmit(event) {
     event.preventDefault();
     
-    const title = document.getElementById('taskTitle').value;
-    const description = document.getElementById('taskDescription').value;
-    const dueDate = document.getElementById('taskDueDate').value;
-    const category = document.getElementById('taskCategory').value;
-    const priority = document.getElementById('taskPriority').value;
+    const taskTitle = document.getElementById('taskTitle');
+    const taskDescription = document.getElementById('taskDescription');
+    const taskDueDate = document.getElementById('taskDueDate');
+    const taskCategory = document.getElementById('taskCategory');
+    const taskPriority = document.getElementById('taskPriority');
 
     const task = {
         id: Date.now().toString(),
-        title,
-        description,
-        dueDate,
-        category,
-        priority,
+        title: taskTitle.value,
+        description: taskDescription.value,
+        category: taskCategory.value,
+        dueDate: taskDueDate.value || null,
+        priority: taskPriority.value,
         status: 'todo',
-        progress: 0
+        createdAt: new Date().toISOString()
     };
 
     const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
@@ -167,14 +178,15 @@ function handleEditTaskSubmit(e) {
 
     if (taskIndex === -1) return;
 
-    tasks[taskIndex] = {
-        ...tasks[taskIndex],
+    const updatedTask = {
         title: document.getElementById('editTaskTitle').value,
         description: document.getElementById('editTaskDescription').value,
-        dueDate: document.getElementById('editTaskDueDate').value,
         category: document.getElementById('editTaskCategory').value,
+        dueDate: document.getElementById('editTaskDueDate').value || null,
         priority: document.getElementById('editTaskPriority').value
     };
+
+    tasks[taskIndex] = { ...tasks[taskIndex], ...updatedTask };
 
     localStorage.setItem('tasks', JSON.stringify(tasks));
     closeEditTaskModal();
@@ -283,7 +295,11 @@ function createTaskCard(task) {
             </div>
             <div class="task-footer">
                 <span class="task-category">${task.category}</span>
-                <span class="task-due-date">${task.dueDate}</span>
+                ${task.dueDate ? `<span class="task-due-date">${task.dueDate}</span>` : ''}
+                <span class="task-priority priority-${task.priority}">
+                    <i class="fas fa-flag"></i> 
+                    ${task.priority === 'high' ? 'Alta' : task.priority === 'medium' ? 'Média' : 'Baixa'}
+                </span>
             </div>
         </div>
         <div class="progress-container">
@@ -387,7 +403,7 @@ function populateCategoryDropdowns() {
         const dropdown = document.getElementById(dropdownId);
         if (dropdown) {
             dropdown.innerHTML = `
-                <option value="">Select Category</option>
+                <option value="">Selecione Categoria</option>
                 ${categories.map(category => `
                     <option value="${category}">${category}</option>
                 `).join('')}
@@ -405,6 +421,8 @@ newCategoryBtn.addEventListener('click', () => categoryModal.style.display = 'bl
 taskForm.addEventListener('submit', handleTaskSubmit);
 editTaskForm.addEventListener('submit', handleEditTaskSubmit);
 categoryForm.addEventListener('submit', handleCategorySubmit);
+settingsBtn.addEventListener('click', openSettingsModal);
+closeSettingsModal.addEventListener('click', closeSettingsModalFn);
 
 // State
 let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
@@ -660,6 +678,7 @@ window.addEventListener('click', (e) => {
     if (e.target === taskModal) closeTaskModal();
     if (e.target === editTaskModal) closeEditTaskModal();
     if (e.target === categoryModal) closeCategoryModal();
+    if (e.target === settingsModal) closeSettingsModalFn();
 });
 
 function updateTasksDisplay() {
