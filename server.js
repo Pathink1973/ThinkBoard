@@ -2,33 +2,36 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
-const { Storage } = require('@google-cloud/storage');
 const path = require('path');
 
 const app = express();
 const port = process.env.PORT || 4000;
 
-// Basic CORS setup
+// CORS configuration - allow all origins during development
 app.use(cors());
 
 // Middleware
 app.use(express.json());
-app.use(express.static(__dirname));
 
-// Google Cloud Storage setup
-const storage = new Storage({
-    projectId: process.env.GOOGLE_CLOUD_PROJECT_ID,
-    keyFilename: process.env.GOOGLE_CLOUD_CREDENTIALS_PATH
+// Serve static files from the root directory
+app.use(express.static(__dirname));
+app.use('/uploads', express.static('uploads'));
+
+// Configure multer for local file storage
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'uploads/');
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + '-' + file.originalname);
+    }
 });
 
-const bucket = storage.bucket(process.env.GOOGLE_CLOUD_BUCKET_NAME);
+const upload = multer({ storage: storage });
 
-// Multer setup for file uploads
-const upload = multer({
-    storage: multer.memoryStorage(),
-    limits: {
-        fileSize: 5 * 1024 * 1024 // 5MB
-    }
+// Test endpoint
+app.get('/test', (req, res) => {
+    res.json({ status: 'ok', message: 'Server is running' });
 });
 
 // Upload endpoint
@@ -41,43 +44,12 @@ app.post('/upload', upload.single('image'), async (req, res) => {
     }
 
     try {
-        console.log('Processing file:', req.file.originalname);
-        
-        const blobName = `${Date.now()}_${req.file.originalname}`;
-        const blob = bucket.file(blobName);
-        
-        const blobStream = blob.createWriteStream({
-            resumable: false,
-            metadata: {
-                contentType: req.file.mimetype
-            }
-        });
-
-        blobStream.on('error', (error) => {
-            console.error('Stream error:', error);
-            res.status(500).json({ error: 'Upload failed' });
-        });
-
-        blobStream.on('finish', async () => {
-            // Generate a signed URL that expires in 1 week
-            try {
-                const [url] = await blob.getSignedUrl({
-                    action: 'read',
-                    expires: Date.now() + 7 * 24 * 60 * 60 * 1000, // 1 week
-                });
-                console.log('Upload successful, signed URL:', url);
-                res.status(200).json({ imageUrl: url });
-            } catch (error) {
-                console.error('Error generating signed URL:', error);
-                res.status(500).json({ error: 'Failed to generate URL for uploaded file' });
-            }
-        });
-
-        console.log('Writing file to stream...');
-        blobStream.end(req.file.buffer);
+        console.log('File saved:', req.file.filename);
+        const imageUrl = `/uploads/${req.file.filename}`;
+        res.status(200).json({ imageUrl: imageUrl });
     } catch (error) {
         console.error('Upload error:', error);
-        res.status(500).json({ error: 'Upload failed' });
+        res.status(500).json({ error: `Upload failed: ${error.message}` });
     }
 });
 
@@ -86,14 +58,7 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Serve static files
-app.use(express.static(path.join(__dirname)));
-
 // Start server
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
-    console.log('Google Cloud Storage config:', {
-        projectId: process.env.GOOGLE_CLOUD_PROJECT_ID,
-        bucket: process.env.GOOGLE_CLOUD_BUCKET_NAME
-    });
 });

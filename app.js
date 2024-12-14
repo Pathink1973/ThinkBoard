@@ -1,3 +1,6 @@
+// Server configuration
+const SERVER_URL = window.location.origin;
+
 // DOM Elements
 const kanbanBoard = document.getElementById('kanbanBoard');
 const taskModal = document.getElementById('taskModal');
@@ -293,27 +296,55 @@ async function handleEditTaskSubmit(e) {
 
 async function uploadImage(file) {
     try {
+        // Test server connection first
+        const isServerAvailable = await testServerConnection();
+        if (!isServerAvailable) {
+            throw new Error('Server is not accessible. Please make sure the server is running.');
+        }
+
         const formData = new FormData();
         formData.append('image', file);
 
-        console.log('Starting upload...');
+        console.log('Starting upload...', file.name);
         
-        const response = await fetch('/upload', {
+        const response = await fetch(`${SERVER_URL}/upload`, {
             method: 'POST',
             body: formData
         });
 
+        const responseData = await response.json();
+        console.log('Server response:', responseData);
+
         if (!response.ok) {
-            const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-            throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+            throw new Error(responseData.error || `HTTP error! status: ${response.status}`);
         }
 
-        const data = await response.json();
-        console.log('Upload successful:', data);
-        return data.imageUrl;
+        console.log('Upload successful:', responseData);
+        return responseData.imageUrl;
     } catch (error) {
         console.error('Upload failed:', error);
-        throw new Error(`Upload failed: ${error.message}`);
+        throw error;
+    }
+}
+
+async function testServerConnection() {
+    try {
+        console.log('Testing server connection...');
+        const response = await fetch(`${SERVER_URL}/test`);
+        console.log('Test response status:', response.status);
+        
+        if (!response.ok) {
+            const text = await response.text();
+            console.log('Server error response:', text);
+            throw new Error(text);
+        }
+        
+        const data = await response.json();
+        console.log('Server test response:', data);
+        return data && data.status === 'ok';
+    } catch (error) {
+        console.error('Server connection test failed:', error);
+        return false;
     }
 }
 
