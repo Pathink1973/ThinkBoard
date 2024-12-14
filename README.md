@@ -1,8 +1,8 @@
-# 🎨 Kanban Board - ToDo para Criativos
+# 🎨 ThinkBoard - ToDo para Criativos
 
 Um quadro Kanban moderno e elegante, projetado especificamente para profissionais criativos, com uma interface inspirada no design minimalista da Apple.
 
-![Kanban Board Preview](assets/preview.png)
+![ThinkBoard Preview](assets/preview.png)
 
 ## 📋 Funcionalidades
 
@@ -40,18 +40,11 @@ Um quadro Kanban moderno e elegante, projetado especificamente para profissionai
    - Atribua um nome e cor à categoria
    - As categorias aparecem no menu lateral
 
-3. **Mover Tarefas**
-   - Arraste e solte as tarefas entre colunas
-   - Ou use o menu dropdown em cada tarefa
-   - O progresso é atualizado automaticamente
-
 ## 💻 Tecnologias Utilizadas
 
 - HTML5
 - CSS3 (com variáveis CSS para temas)
 - JavaScript (Vanilla)
-- LocalStorage para persistência de dados
-- Drag & Drop API
 - Font Awesome para ícones
 
 ## 🎯 Recursos Especiais
