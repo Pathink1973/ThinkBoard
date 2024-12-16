@@ -153,7 +153,3 @@ Este projeto está sob a licença MIT. Consulte o ficheiro `LICENSE` para mais d
 ## 👨‍💻 Autor
 
 Desenvolvido por Patricio Brito © 2024.
-
----
-
-⭐️ Se este projeto foi útil para você, considere dar uma estrela no GitHub!
