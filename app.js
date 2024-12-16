@@ -568,7 +568,7 @@ function exportTasksToJSON() {
         const dataStr = JSON.stringify(backup, null, 2);
         const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
         
-        const exportFileDefaultName = `thinkboard-kanbanbackup-${new Date().toISOString().slice(0,10)}.json`;
+        const exportFileDefaultName = `thinkboard-kanban-backup-${new Date().toISOString().slice(0,10)}.json`;
         
         const linkElement = document.createElement('a');
         linkElement.setAttribute('href', dataUri);
