@@ -37,7 +37,9 @@ const defaultCategories = [
 // Initialize categories
 function initializeCategories() {
     const categoryList = document.getElementById('categoryList');
-    categoryList.innerHTML = defaultCategories.map(category => `
+    const storedCategories = JSON.parse(localStorage.getItem('categories')) || defaultCategories;
+    
+    categoryList.innerHTML = storedCategories.map(category => `
         <li class="category-item" onclick="filterByCategory('${category}')">
             <span class="category-icon">
                 <i class="fas fa-folder"></i>
@@ -55,6 +57,9 @@ function initializeCategories() {
             Todas as Categorias
         </li>
     ` + categoryList.innerHTML;
+
+    // Also populate the category filter dropdown
+    populateCategoryDropdowns();
 }
 
 // Category filtering
@@ -93,6 +98,8 @@ document.addEventListener('DOMContentLoaded', () => {
     setupDragAndDrop();
     updateTaskCounts();
     populateCategoryDropdowns();
+    filterByCategory('all'); // Start with all categories shown
+    filterCategories();
 });
 
 // Modal handling functions
@@ -396,7 +403,7 @@ function updateTaskCounts() {
 }
 
 function populateCategoryDropdowns() {
-    const categories = defaultCategories;
+    const categories = JSON.parse(localStorage.getItem('categories')) || defaultCategories;
     const dropdowns = ['taskCategory', 'editTaskCategory'];
     
     dropdowns.forEach(dropdownId => {
@@ -442,6 +449,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateTaskCounts();
     populateCategoryDropdowns();
     setupDragAndDrop();
+    filterCategories();
 });
 
 // Category Functions
@@ -524,24 +532,41 @@ function deleteCategory(categoryName) {
 }
 
 function filterCategories() {
-    const selectedCategory = categoryFilter.value;
-    const taskCards = document.querySelectorAll('.task-card');
+    const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+    const categories = JSON.parse(localStorage.getItem('categories') || defaultCategories);
+    
+    // Clear existing filter options
+    categoryFilter.innerHTML = `
+        <option value="all">Todas as Categorias</option>
+        ${categories.map(category => `
+            <option value="${category}">${category}</option>
+        `).join('')}
+    `;
 
-    taskCards.forEach(card => {
-        const taskId = parseInt(card.dataset.taskId);
-        const task = tasks.find(t => t.id === taskId);
+    // Add event listener to filter
+    categoryFilter.addEventListener('change', () => {
+        const selectedCategory = categoryFilter.value;
         
-        if (!task) return;
-
-        if (selectedCategory === 'all' || task.category === selectedCategory) {
-            card.style.display = 'block';
-        } else {
-            card.style.display = 'none';
-        }
+        // Filter tasks
+        const filteredTasks = selectedCategory === 'all' 
+            ? tasks 
+            : tasks.filter(task => task.category === selectedCategory);
+        
+        // Update columns with filtered tasks
+        const columns = ['todo', 'doing', 'done'];
+        columns.forEach(status => {
+            const column = document.querySelector(`[data-status="${status}"]`);
+            const tasksInColumn = filteredTasks.filter(task => task.status === status);
+            
+            column.innerHTML = `
+                <h3>${status.charAt(0).toUpperCase() + status.slice(1)}</h3>
+                ${tasksInColumn.map(task => createTaskCard(task)).join('')}
+            `;
+        });
+        
+        setupDragAndDrop();
+        updateTaskCounts();
     });
-
-    // Update column headers to show filtered counts
-    updateTaskCounts();
 }
 
 function saveTasks() {
@@ -568,7 +593,7 @@ function exportTasksToJSON() {
         const dataStr = JSON.stringify(backup, null, 2);
         const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
         
-        const exportFileDefaultName = `thinkboard-kanban-backup-${new Date().toISOString().slice(0,10)}.json`;
+        const exportFileDefaultName = `creative-kavan-backup-${new Date().toISOString().slice(0,10)}.json`;
         
         const linkElement = document.createElement('a');
         linkElement.setAttribute('href', dataUri);
