@@ -636,34 +636,61 @@ body {
 }
 
 .category-item {
-    background: var(--card-background);
-    border-radius: 8px;
-    padding: var(--spacing-sm) var(--spacing-md);
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    transition: all 0.2s ease;
+    padding: 8px 12px;
+    margin-bottom: 4px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    position: relative;
+    background: var(--card-background);
     border: 1px solid var(--border-color);
 }
 
 .category-item:hover {
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-sm);
-    border-color: var(--primary-color);
+    background-color: rgba(0, 0, 0, 0.05);
 }
 
-.category-item.default-category {
-    background: rgba(0, 122, 255, 0.03);
+.delete-category-btn {
+    display: none;
+    position: absolute;
+    right: 8px;
+    background: none;
+    border: none;
+    color: #ff4c4c;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.delete-category-btn:hover {
+    background-color: rgba(255, 76, 76, 0.1);
+}
+
+.category-item:hover .delete-category-btn {
+    display: block;
+}
+
+.category-icon {
+    margin-right: 8px;
+    color: #666;
+}
+
+.native-category {
+    font-weight: 500;
+    background: rgba(0, 122, 255, 0.05);
     border-color: rgba(0, 122, 255, 0.1);
 }
 
-.category-item.default-category .category-name i {
-    color: var(--primary-color);
+.native-category:hover {
+    background: rgba(0, 122, 255, 0.08);
+    border-color: rgba(0, 122, 255, 0.15);
 }
 
-.category-item.default-category:hover {
-    border-color: rgba(0, 122, 255, 0.2);
-    background: rgba(0, 122, 255, 0.05);
+.native-category .category-icon {
+    color: #007AFF;
 }
 
 .category-name {
@@ -694,17 +721,17 @@ body {
 }
 
 .delete-category {
-    background: transparent;
+    background: none;
     border: none;
-    color: var(--danger-color);
+    color: #ff4d4d;
     cursor: pointer;
-    padding: 4px;
-    border-radius: 4px;
+    padding: 4px 8px;
+    margin-left: auto;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
     display: flex;
     align-items: center;
     justify-content: center;
-    opacity: 0;
-    transition: all 0.2s ease;
 }
 
 .category-item:hover .delete-category {
@@ -712,11 +739,12 @@ body {
 }
 
 .delete-category:hover {
-    background-color: rgba(255, 59, 48, 0.1);
+    color: #ff1a1a;
+    transform: scale(1.1);
 }
 
 .delete-category i {
-    font-size: 0.9rem;
+    font-size: 0.9em;
 }
 
 /* Kanban Board */
