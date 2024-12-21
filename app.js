@@ -89,10 +89,10 @@ function filterByCategory(category) {
 // Add event listener for categories
 document.addEventListener('DOMContentLoaded', () => {
     initializeCategories();
+    populateCategoryDropdowns();
     renderTasks();
     setupDragAndDrop();
     updateTaskCounts();
-    populateCategoryDropdowns();
 });
 
 // Modal handling functions
