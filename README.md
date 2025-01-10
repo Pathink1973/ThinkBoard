@@ -152,4 +152,4 @@ Este projeto está sob a licença MIT. Consulte o ficheiro `LICENSE` para mais d
 
 ## 👨‍💻 Autor
 
-Desenvolvido por Patricio Brito © 2024.
+Desenvolvido por Patricio Brito © 2025.
